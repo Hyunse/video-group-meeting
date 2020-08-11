@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-import Peer from 'peerjs'
+import Peer from 'simple-peer';
 import socket from '../../socket';
-import VideoCard from '../Video/VideoCard'
+import VideoCard from '../Video/VideoCard';
 
 const Room = () => {
-
   useEffect(() => {
     const peer = new Peer('a');
     console.log(peer);
@@ -13,14 +12,11 @@ const Room = () => {
       console.log(id);
     });
 
-    socket.on('connect', () => {
-      console.log(`socket connected : ${socket.id}`);
-    });
   }, []);
   return (
-      <div>
-        <VideoCard />
-      </div>
+    <div>
+      <VideoCard />
+    </div>
   );
 };
 

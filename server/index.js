@@ -1,6 +1,7 @@
 const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
+let socketList = {};
 
 // Route
 app.get('/', (req, res) => {
@@ -14,15 +15,47 @@ app.get('/', (req, res) => {
 // Socket
 io.on('connection', (socket) => {
   console.log('User Connected!!', socket.id, new Date().toLocaleDateString());
-  
+
   socket.on('disconnect', () => {
     console.log('User disconnected!');
   });
 
-  socket.on('BE-join-room', ({ roomName, userName}) => {
+  /**
+   * Join Room
+   */
+  socket.on('BE-join-room', ({ roomName, userName }) => {
+    // Socket Join RoomName
     socket.join(roomName);
+    socketList[socket.id] = userName;
 
-    socket.emit('join-room');
+    // Set User List
+    io.in(roomName).clients((err, clients) => {
+      try {
+        const users = [];
+        clients.forEach((client) => {
+          if (
+            client !== socket.id &&
+            socketList[client] &&
+            socketList[client] !== userName
+          ) {
+            // Add User List
+            users.push({ socketId: client, userName: socketList[userName] });
+          } else if (client !== socket.id && socketList[client] == userName) {
+            // Found Same User Name..
+            socket.leave(roomName);
+            delete socketList[socket.id];
+            
+            throw {
+              msg: 'User Name not available'
+            };
+          }
+        });
+
+        io.sockets.in(roomName).emit('FE-user-join', { roomName, users });
+      } catch (e) {
+        socket.emit('FE-error-user-exist', { err: e.msg });
+      }
+    });
   });
 });
 
