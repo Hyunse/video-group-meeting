@@ -13,13 +13,16 @@ app.get('/', (req, res) => {
 
 // Socket
 io.on('connection', (socket) => {
-  console.log('User Connected!!');
-  socket.on('connect', () => {
-    console.log('connected', socket.id, new Date().toLocaleDateString());
-  });
-
+  console.log('User Connected!!', socket.id, new Date().toLocaleDateString());
+  
   socket.on('disconnect', () => {
     console.log('User disconnected!');
+  });
+
+  socket.on('BE-join-room', ({ roomName, userName}) => {
+    socket.join(roomName);
+
+    socket.emit('join-room');
   });
 });
 
