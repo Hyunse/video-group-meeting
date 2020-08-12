@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
             socketList[client] !== userName
           ) {
             // Add User List
-            users.push({ socketId: client, userName: socketList[userName] });
+            users.push({ socketId: client, userName: socketList[client] });
           } else if (client !== socket.id && socketList[client] == userName) {
             // Found Same User Name..
             socket.leave(roomName);
@@ -51,6 +51,7 @@ io.on('connection', (socket) => {
           }
         });
 
+        console.log(users);
         io.sockets.in(roomName).emit('FE-user-join', { roomName, users });
       } catch (e) {
         socket.emit('FE-error-user-exist', { err: e.msg });
