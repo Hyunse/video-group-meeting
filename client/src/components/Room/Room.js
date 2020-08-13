@@ -3,10 +3,13 @@ import Peer from 'simple-peer';
 import styled from 'styled-components';
 import socket from '../../socket';
 import VideoCard from '../Video/VideoCard';
+import BottomBar from '../BottomBar/BottomBar';
+import Chat from '../Chat/Chat';
 
 const Room = (props) => {
   const currentUser = sessionStorage.getItem('user');
   const [peers, setPeers] = useState([]);
+  const [displayChat, setDisplayChat] = useState(false);
   const peersRef = useRef([]);
   const userVideoRef = useRef();
   const roomId = props.match.params.roomId;
@@ -94,25 +97,48 @@ const Room = (props) => {
     return peer;
   }
 
+  const clickChat = () => {
+    setDisplayChat(!displayChat);
+  };
+
   return (
     <RoomContainer>
-      <MyVideo ref={userVideoRef} muted autoPlay playInline />
-      {peers &&
-        peers.map((peer, index) => {
-          return <VideoCard key={index} peer={peer} />;
-        })}
+      <VideoAndBarContainer>
+        <VideoContainer>
+          <MyVideo ref={userVideoRef} muted autoPlay playInline />
+          {peers &&
+            peers.map((peer, index) => {
+              return <VideoCard key={index} peer={peer} />;
+            })}
+        </VideoContainer>
+        <BottomBar clickChat={clickChat} />
+      </VideoAndBarContainer>
+      <Chat display={displayChat}/>
     </RoomContainer>
   );
 };
 
 const RoomContainer = styled.div`
   display: flex;
-  width: 70%;
-  justify-content: space-around;
+  width: 100%;
+  height: 100%;
+  flex-direction: row;
+`;
+
+const VideoContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+const VideoAndBarContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100vh;
 `;
 
 const MyVideo = styled.video`
-  width: 300px;
-  height: 300px;
+  width: 25%;
+  height: 100%;
 `;
+
 export default Room;
