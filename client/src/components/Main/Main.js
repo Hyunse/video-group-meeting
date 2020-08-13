@@ -1,47 +1,35 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Redirect } from 'react-router-dom';
 import styled from 'styled-components';
 import socket from '../../socket';
 
-const Main = () => {
+const Main = (props) => {
   const roomRef = useRef();
   const userRef = useRef();
-  const [toRoom, setToRoom] = useState({ roomName: '', err: false, users: [] });
-  const [redirect, setRedirect] = useState(false);
+  const [err, setErr] = useState(false);
 
   useEffect(() => {
-    socket.on('FE-error-user-exist', ({ err }) => {
-      setToRoom({ err });
-    });
+    socket.on('FE-error-user-exist', ({ error }) => {
+      if (!error) {
+        const roomName = roomRef.current.value;
+        const userName = userRef.current.value;
 
-    socket.on('FE-user-join', ({ roomName, users }) => {
-      joinRoom(roomName, users);
+        sessionStorage.setItem('user', userName);
+        props.history.push(`/room/${roomName}`);
+      } else {
+        setErr(error);
+      }
     });
-  }, []);
-
-  function joinRoom(roomName, users) {
-    setToRoom({ roomName, users });
-    setRedirect(true);
-  }
+  }, [props.history]);
 
   function clickJoin() {
     const roomName = roomRef.current.value;
     const userName = userRef.current.value;
 
-    sessionStorage.setItem('user', userName);
-    socket.emit('BE-join-room', { roomName, userName });
+    socket.emit('BE-check-user', { roomId: roomName, userName });
   }
 
   return (
     <MainContainer>
-      {redirect ? (
-        <Redirect
-          to={{
-            pathname: `/room/${toRoom.roomName}`,
-            state: { roomName: toRoom.roomName, users: toRoom.users },
-          }}
-        />
-      ) : null}
       <Row>
         <Label htmlFor="roomName">Room Name</Label>
         <Input type="text" id="roomName" ref={roomRef} />
@@ -51,7 +39,7 @@ const Main = () => {
         <Input type="text" id="userName" ref={userRef} />
       </Row>
       <JoinButton onClick={clickJoin}> Join </JoinButton>
-      {toRoom.err ? <Error>{toRoom.err}</Error> : null}
+      {err ? <Error>User name already exist</Error> : null}
     </MainContainer>
   );
 };

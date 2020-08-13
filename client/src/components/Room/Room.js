@@ -5,43 +5,52 @@ import socket from '../../socket';
 import VideoCard from '../Video/VideoCard';
 
 const Room = (props) => {
-  // const currentUser = sessionStorage.getItem('user');
-  const { users } = props.location.state;
+  const currentUser = sessionStorage.getItem('user');
   const [peers, setPeers] = useState([]);
   const peersRef = useRef([]);
   const userVideoRef = useRef();
+  const roomId = props.match.params.roomId;
 
   useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
         userVideoRef.current.srcObject = stream;
-        // all users
-        const peers = [];
-        users.forEach(({ userId }) => {
-          const peer = createPeer(userId, socket.id, stream);
 
-          peersRef.current.push({
-            peerID: userId,
-            peer,
+        socket.emit('BE-join-room', { roomId, userName: currentUser });
+        socket.on('FE-user-join', (users) => {
+          console.log('FE-user-join', users);
+          // all users
+          const peers = [];
+          users.forEach(({ userId }) => {
+            const peer = createPeer(userId, socket.id, stream);
+
+            peersRef.current.push({
+              peerID: userId,
+              peer,
+            });
+
+            peers.push(peer);
           });
-
-          peers.push(peer);
+          setPeers(peers);
         });
-        setPeers(peers);
 
         socket.on('FE-receive-call', ({ signal, from }) => {
-          const peer = addPeer(signal, from, stream);
+          const peerIdx = peersRef.current.find((p) => p.peerID === from);
+          if (peerIdx === undefined || peerIdx === -1) {
+            const peer = addPeer(signal, from, stream);
 
-          peersRef.current.push({
-            peerID: from,
-            peer,
-          });
-
-          setPeers((users) => [...users, peer]);
+            peersRef.current.push({
+              peerID: from,
+              peer,
+            });
+            console.log('FE-receive-call');
+            setPeers((users) => [...users, peer]);
+          }
         });
 
         socket.on('FE-call-accepted', ({ signal, answerId }) => {
+          console.log('FE-call-accepted', answerId);
           const peer = peersRef.current.find((p) => p.peerID === answerId);
           peer.peer.signal(signal);
         });
@@ -57,6 +66,7 @@ const Room = (props) => {
     });
 
     peer.on('signal', (signal) => {
+      console.log('Create-Peer-Signal');
       socket.emit('BE-call-user', {
         userToCall: userId,
         from: caller,
@@ -75,6 +85,7 @@ const Room = (props) => {
     });
 
     peer.on('signal', (signal) => {
+      console.log('Add-Peer-Signal');
       socket.emit('BE-accept-call', { signal, to: callerId });
     });
 
@@ -83,36 +94,8 @@ const Room = (props) => {
     return peer;
   }
 
-  console.log('Peers', peers);
-
   return (
     <RoomContainer>
-      {/* {stream && <video playsInline muted ref={userVideoRef} autoPlay />} */}
-      {/* {callAccepted && (
-        <video playsInline muted ref={partnerVideoRef} autoPlay />
-      )} */}
-      {/* {receiveCall && (
-        <div>
-          <div>{caller} is calling you</div>
-          <button onClick={acceptCall}>Accept</button>
-        </div>
-      )} */}
-      {/* {allUser &&
-        allUser.map((user, _, arr) => {
-          console.log('All user map', user);
-          console.log(currentUser);
-
-          if (user.userName === currentUser) {
-            return null;
-          }
-          console.log('All user map2', user);
-          return (
-            <button onClick={() => initCall(user)} key={user.userName}>
-              Call To {user.userName}
-            </button>
-          );
-        })} */}
-
       <MyVideo ref={userVideoRef} muted autoPlay playInline />
       {peers &&
         peers.map((peer, index) => {
@@ -124,11 +107,12 @@ const Room = (props) => {
 
 const RoomContainer = styled.div`
   display: flex;
+  width: 70%;
   justify-content: space-around;
 `;
 
 const MyVideo = styled.video`
-  width: 500px;
-  height: 500px;
+  width: 300px;
+  height: 300px;
 `;
 export default Room;

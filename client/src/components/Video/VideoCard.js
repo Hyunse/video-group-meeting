@@ -11,7 +11,7 @@ const VideoCard = (props) => {
   }, [peer]);
 
   return (
-      <Video playsInline autoPlay ref={ref} />
+      <Video playsInline autoPlay muted ref={ref} />
   );
 };
 

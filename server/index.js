@@ -20,16 +20,28 @@ io.on('connection', (socket) => {
     console.log('User disconnected!');
   });
 
+  socket.on('BE-check-user', ({ roomId, userName }) => {
+    let error = false;
+    io.sockets.in(roomId).clients((err, clients) => {
+      clients.forEach((client) => {
+        if (socketList[client] == userName) {
+          error = true;
+        }
+      });
+      socket.emit('FE-error-user-exist', { error });
+    });
+  });
+
   /**
    * Join Room
    */
-  socket.on('BE-join-room', ({ roomName, userName }) => {
+  socket.on('BE-join-room', ({ roomId, userName }) => {
     // Socket Join RoomName
-    socket.join(roomName);
+    socket.join(roomId);
     socketList[socket.id] = userName;
 
     // Set User List
-    io.sockets.in(roomName).clients((err, clients) => {
+    io.sockets.in(roomId).clients((err, clients) => {
       try {
         const users = [];
         clients.forEach((client) => {
@@ -42,7 +54,7 @@ io.on('connection', (socket) => {
             users.push({ userId: client, userName: socketList[client] });
           } else if (client !== socket.id && socketList[client] == userName) {
             // Found Same User Name..
-            socket.leave(roomName);
+            socket.leave(roomId);
             delete socketList[socket.id];
 
             throw {
@@ -50,11 +62,7 @@ io.on('connection', (socket) => {
             };
           }
         });
-
-        socket.emit('FE-user-join', { roomName, users });
-        socket.broadcast
-          .to(roomName)
-          .emit('FE-new-user', { socketId: socket.id, userName });
+        socket.emit('FE-user-join', users);
       } catch (e) {
         socket.emit('FE-error-user-exist', { err: e.msg });
       }
