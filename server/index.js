@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
     socketList[socket.id] = userName;
 
     // Set User List
-    io.in(roomName).clients((err, clients) => {
+    io.sockets.in(roomName).clients((err, clients) => {
       try {
         const users = [];
         clients.forEach((client) => {
@@ -39,23 +39,39 @@ io.on('connection', (socket) => {
             socketList[client] !== userName
           ) {
             // Add User List
-            users.push({ socketId: client, userName: socketList[client] });
+            users.push({ userId: client, userName: socketList[client] });
           } else if (client !== socket.id && socketList[client] == userName) {
             // Found Same User Name..
             socket.leave(roomName);
             delete socketList[socket.id];
-            
+
             throw {
-              msg: 'User Name not available'
+              msg: 'User Name not available',
             };
           }
         });
 
-        console.log(users);
-        io.sockets.in(roomName).emit('FE-user-join', { roomName, users });
+        socket.emit('FE-user-join', { roomName, users });
+        socket.broadcast
+          .to(roomName)
+          .emit('FE-new-user', { socketId: socket.id, userName });
       } catch (e) {
         socket.emit('FE-error-user-exist', { err: e.msg });
       }
+    });
+  });
+
+  socket.on('BE-call-user', ({ userToCall, from, signal }) => {
+    io.to(userToCall).emit('FE-receive-call', {
+      signal,
+      from,
+    });
+  });
+
+  socket.on('BE-accept-call', ({ signal, to }) => {
+    io.to(to).emit('FE-call-accepted', {
+      signal,
+      answerId: socket.id,
     });
   });
 });

@@ -6,8 +6,8 @@ import socket from '../../socket';
 const Main = () => {
   const roomRef = useRef();
   const userRef = useRef();
-  const [toRoom, setToRoom] = useState({ roomName: '', err: false });
-  const [room, setRoom] = useState({ roomName: '', users: {} });
+  const [toRoom, setToRoom] = useState({ roomName: '', err: false, users: [] });
+  const [redirect, setRedirect] = useState(false);
 
   useEffect(() => {
     socket.on('FE-error-user-exist', ({ err }) => {
@@ -15,29 +15,32 @@ const Main = () => {
     });
 
     socket.on('FE-user-join', ({ roomName, users }) => {
-      console.log('Enter join');
       joinRoom(roomName, users);
     });
   }, []);
 
   function joinRoom(roomName, users) {
-    setRoom({ roomName, users });
-    setToRoom({ roomName });
+    setToRoom({ roomName, users });
+    setRedirect(true);
   }
 
   function clickJoin() {
     const roomName = roomRef.current.value;
     const userName = userRef.current.value;
 
+    sessionStorage.setItem('user', userName);
     socket.emit('BE-join-room', { roomName, userName });
   }
 
-  console.log(toRoom);
-
   return (
     <MainContainer>
-      {toRoom.roomName && !toRoom.err ? (
-        <Redirect to={{ pathname: `/room/${toRoom.roomName}`, state: { room } }} />
+      {redirect ? (
+        <Redirect
+          to={{
+            pathname: `/room/${toRoom.roomName}`,
+            state: { roomName: toRoom.roomName, users: toRoom.users },
+          }}
+        />
       ) : null}
       <Row>
         <Label htmlFor="roomName">Room Name</Label>
