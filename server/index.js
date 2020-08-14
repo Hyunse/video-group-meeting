@@ -1,16 +1,31 @@
-const app = require('express')();
+const express = require('express');
+const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
+const PORT = process.env.PORT || 3001;
+const path = require('path');
+
 let socketList = {};
 
+app.use(express.static(path.join(__dirname, 'public')));
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/build')));
+}
+
 // Route
-app.get('/', (req, res) => {
+app.get('/ping', (req, res) => {
   res
     .send({
       success: true,
     })
     .status(200);
 });
+
+app.get('/*', function (req, res) {
+  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
+
 
 // Socket
 io.on('connection', (socket) => {
@@ -89,6 +104,6 @@ io.on('connection', (socket) => {
   });
 });
 
-http.listen(3001, () => {
+http.listen(PORT, () => {
   console.log('Connected : 3001');
 });
