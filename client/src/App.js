@@ -23,7 +23,7 @@ const AppContainer = styled.div`
   min-height: 100vh;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  font-size: calc(8px + 2vmin);
   color: white;
   background-color: #454552;
   text-align: center;

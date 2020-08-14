@@ -10,8 +10,6 @@ const Chat = ({ display, roomId }) => {
   
   useEffect(() => {
     socket.on('FE-receive-message', ({ msg, sender }) => {
-      console.log(`${sender}: ${msg}`);
-
       setMsg((msgs) => [...msgs, { sender, msg }]);
     });
   }, []);

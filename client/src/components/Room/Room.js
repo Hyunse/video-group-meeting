@@ -22,7 +22,6 @@ const Room = (props) => {
 
         socket.emit('BE-join-room', { roomId, userName: currentUser });
         socket.on('FE-user-join', (users) => {
-          console.log('FE-user-join', users);
           // all users
           const peers = [];
           users.forEach(({ userId }) => {
@@ -47,13 +46,11 @@ const Room = (props) => {
               peerID: from,
               peer,
             });
-            console.log('FE-receive-call');
             setPeers((users) => [...users, peer]);
           }
         });
 
         socket.on('FE-call-accepted', ({ signal, answerId }) => {
-          console.log('FE-call-accepted', answerId);
           const peer = peersRef.current.find((p) => p.peerID === answerId);
           peer.peer.signal(signal);
         });
@@ -69,7 +66,6 @@ const Room = (props) => {
     });
 
     peer.on('signal', (signal) => {
-      console.log('Create-Peer-Signal');
       socket.emit('BE-call-user', {
         userToCall: userId,
         from: caller,
@@ -88,7 +84,6 @@ const Room = (props) => {
     });
 
     peer.on('signal', (signal) => {
-      console.log('Add-Peer-Signal');
       socket.emit('BE-accept-call', { signal, to: callerId });
     });
 
@@ -105,15 +100,21 @@ const Room = (props) => {
     <RoomContainer>
       <VideoAndBarContainer>
         <VideoContainer>
-          <MyVideo ref={userVideoRef} muted autoPlay playInline />
+          <MyVideo
+            ref={userVideoRef}
+            muted
+            autoPlay
+            playInline
+            className={peers.length > 0 ? `width-peer${peers.length > 8 ? '' : peers.length}` : ''}
+          />
           {peers &&
-            peers.map((peer, index) => {
-              return <VideoCard key={index} peer={peer} />;
+            peers.map((peer, index, arr) => {
+              return <VideoCard key={index} peer={peer} number={arr.length} />;
             })}
         </VideoContainer>
         <BottomBar clickChat={clickChat} />
       </VideoAndBarContainer>
-      <Chat display={displayChat} roomId={roomId}/>
+      <Chat display={displayChat} roomId={roomId} />
     </RoomContainer>
   );
 };
@@ -126,8 +127,17 @@ const RoomContainer = styled.div`
 `;
 
 const VideoContainer = styled.div`
+  max-width: 100%;
+  height: 92%;
   display: flex;
   flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 15px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  gap: 10px;
 `;
 
 const VideoAndBarContainer = styled.div`
@@ -137,8 +147,7 @@ const VideoAndBarContainer = styled.div`
 `;
 
 const MyVideo = styled.video`
-  width: 25%;
-  height: 100%;
+  width: 50%;
 `;
 
 export default Room;

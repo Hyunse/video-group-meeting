@@ -29,14 +29,13 @@ app.get('/*', function (req, res) {
 
 // Socket
 io.on('connection', (socket) => {
-  console.log('User Connected!!', socket.id, new Date().toLocaleDateString());
-
   socket.on('disconnect', () => {
     console.log('User disconnected!');
   });
 
   socket.on('BE-check-user', ({ roomId, userName }) => {
     let error = false;
+
     io.sockets.in(roomId).clients((err, clients) => {
       clients.forEach((client) => {
         if (socketList[client] == userName) {
@@ -79,7 +78,7 @@ io.on('connection', (socket) => {
         });
         io.sockets.in(roomId).emit('FE-user-join', users);
       } catch (e) {
-        io.sockets.in(roomId).emit('FE-error-user-exist', { err: e.msg });
+        io.sockets.in(roomId).emit('FE-error-user-exist', { err: true});
       }
     });
   });
@@ -99,7 +98,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('BE-send-message', ({ roomId, msg, sender }) => {
-    console.log(sender, msg, roomId);
     io.sockets.in(roomId).emit('FE-receive-message', { msg, sender });
   });
 });
