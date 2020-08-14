@@ -11,9 +11,12 @@ body {
   top: 0;
   font-size: 100%;
   font-family: 'Open Sans', sans-serif;
+  overflow: hidden;
 }
 
-input {
+input,
+strong,
+p {
   margin: 0;
   padding: 0;
   border: 0;

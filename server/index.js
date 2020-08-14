@@ -62,9 +62,9 @@ io.on('connection', (socket) => {
             };
           }
         });
-        socket.emit('FE-user-join', users);
+        io.sockets.in(roomId).emit('FE-user-join', users);
       } catch (e) {
-        socket.emit('FE-error-user-exist', { err: e.msg });
+        io.sockets.in(roomId).emit('FE-error-user-exist', { err: e.msg });
       }
     });
   });
@@ -81,6 +81,11 @@ io.on('connection', (socket) => {
       signal,
       answerId: socket.id,
     });
+  });
+
+  socket.on('BE-send-message', ({ roomId, msg, sender }) => {
+    console.log(sender, msg, roomId);
+    io.sockets.in(roomId).emit('FE-receive-message', { msg, sender });
   });
 });
 

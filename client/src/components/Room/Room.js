@@ -113,7 +113,7 @@ const Room = (props) => {
         </VideoContainer>
         <BottomBar clickChat={clickChat} />
       </VideoAndBarContainer>
-      <Chat display={displayChat}/>
+      <Chat display={displayChat} roomId={roomId}/>
     </RoomContainer>
   );
 };
@@ -121,7 +121,7 @@ const Room = (props) => {
 const RoomContainer = styled.div`
   display: flex;
   width: 100%;
-  height: 100%;
+  max-height: 100vh;
   flex-direction: row;
 `;
 
