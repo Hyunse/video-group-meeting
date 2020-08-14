@@ -26,7 +26,6 @@ app.get('/*', function (req, res) {
   res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 
-
 // Socket
 io.on('connection', (socket) => {
   socket.on('disconnect', () => {
@@ -59,26 +58,27 @@ io.on('connection', (socket) => {
       try {
         const users = [];
         clients.forEach((client) => {
-          if (
-            client !== socket.id &&
-            socketList[client] &&
-            socketList[client] !== userName
-          ) {
+          // if (
+          //   client !== socket.id &&
+          //   socketList[client] &&
+          //   socketList[client] !== userName
+          // ) {
             // Add User List
             users.push({ userId: client, userName: socketList[client] });
-          } else if (client !== socket.id && socketList[client] == userName) {
-            // Found Same User Name..
-            socket.leave(roomId);
-            delete socketList[socket.id];
+        //   } else if (client !== socket.id && socketList[client] == userName) {
+        //     // Found Same User Name..
+        //     socket.leave(roomId);
+        //     delete socketList[socket.id];
 
-            throw {
-              msg: 'User Name not available',
-            };
-          }
+        //     throw {
+        //       msg: 'User Name not available',
+        //     };
+        //   }
         });
-        io.sockets.in(roomId).emit('FE-user-join', users);
+        socket.broadcast.to(roomId).emit('FE-user-join', users);
+        // io.sockets.in(roomId).emit('FE-user-join', users);
       } catch (e) {
-        io.sockets.in(roomId).emit('FE-error-user-exist', { err: true});
+        io.sockets.in(roomId).emit('FE-error-user-exist', { err: true });
       }
     });
   });

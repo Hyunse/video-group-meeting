@@ -4,5 +4,6 @@
     "prepare-server":"cd server && npm install",
     "heroku-postbuild": "npm run prepare-client && npm run prepare-server",
     "start": "cd server && npm start"
-  }
+  },
+  "homepage": "https://video-group-meeting.herokuapp.com/"
 }

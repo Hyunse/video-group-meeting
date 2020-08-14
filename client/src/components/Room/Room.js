@@ -22,17 +22,20 @@ const Room = (props) => {
 
         socket.emit('BE-join-room', { roomId, userName: currentUser });
         socket.on('FE-user-join', (users) => {
+
           // all users
           const peers = [];
-          users.forEach(({ userId }) => {
-            const peer = createPeer(userId, socket.id, stream);
+          users.forEach(({ userId, userName }) => {
+            if (userName !== currentUser) {
+              const peer = createPeer(userId, socket.id, stream);
 
-            peersRef.current.push({
-              peerID: userId,
-              peer,
-            });
+              peersRef.current.push({
+                peerID: userId,
+                peer,
+              });
 
-            peers.push(peer);
+              peers.push(peer);
+            }
           });
           setPeers(peers);
         });
@@ -46,7 +49,9 @@ const Room = (props) => {
               peerID: from,
               peer,
             });
-            setPeers((users) => [...users, peer]);
+            setPeers((users) => {
+              return [...users, peer];
+            });
           }
         });
 
@@ -105,7 +110,11 @@ const Room = (props) => {
             muted
             autoPlay
             playInline
-            className={peers.length > 0 ? `width-peer${peers.length > 8 ? '' : peers.length}` : ''}
+            className={
+              peers.length > 0
+                ? `width-peer${peers.length > 8 ? '' : peers.length}`
+                : ''
+            }
           />
           {peers &&
             peers.map((peer, index, arr) => {

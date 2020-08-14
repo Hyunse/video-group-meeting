@@ -23,7 +23,6 @@ const VideoCard = (props) => {
 };
 
 const Video = styled.video`
-  /* width: 45%; */
 `;
 
 export default VideoCard;
