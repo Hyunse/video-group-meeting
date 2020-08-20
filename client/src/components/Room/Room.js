@@ -67,11 +67,7 @@ const Room = (props) => {
           const peer = peersRef.current.find((p) => p.peerID === userId);
           peer.peer.destroy();
           setPeers((users) => {
-            users = users.filter((user) =>{
-              if(user.peerID !== peer.peer.peerID) {
-                return user;
-              }
-            });
+            users = users.filter((user) => user.peerID !== peer.peer.peerID);
             return [...users];
           });
         });
