@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const BottomBar = ({ clickChat }) => {
+const BottomBar = ({ clickChat, goToBack }) => {
   return (
     <Bar>
       <Center>
@@ -12,6 +12,11 @@ const BottomBar = ({ clickChat }) => {
           Chat
         </ChatButton>
       </Center>
+      <Right>
+        <StopButton onClick={goToBack}>
+          Stop
+        </StopButton>
+      </Right>
     </Bar>
   );
 };
@@ -30,15 +35,20 @@ const Bar = styled.div`
 `;
 
 const Center = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
 `;
+
+const Right = styled.div``;
 
 const ChatButton = styled.div`
   width: 75px;
   border: none;
-  font-size: 17px;
+  font-size: 15px;
 
   :hover {
-    background-color: #77B7DD;
+    background-color: #77b7dd;
     cursor: pointer;
     border-radius: 15px;
   }
@@ -46,7 +56,23 @@ const ChatButton = styled.div`
 
 const CommentIcon = styled.i`
   width: 30px;
-  font-size: 30px;
-`
+  font-size: calc(16px + 1vmin);
+`;
+
+const StopButton = styled.div`
+  width: 75px;
+  height: 30px;
+  border: none;
+  font-size: 15px;
+  line-height: 30px;
+  margin-right: 15px;
+  background-color: #ee2560;
+  border-radius: 15px;
+
+  :hover {
+    background-color: #f25483;
+    cursor: pointer;
+  }
+`;
 
 export default BottomBar;

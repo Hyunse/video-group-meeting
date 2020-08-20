@@ -9,6 +9,7 @@ const Main = (props) => {
   const [errMsg, setErrMsg] = useState('');
 
   useEffect(() => {
+
     socket.on('FE-error-user-exist', ({ error }) => {
       if (!error) {
         const roomName = roomRef.current.value;

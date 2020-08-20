@@ -15,6 +15,10 @@ const Room = (props) => {
   const roomId = props.match.params.roomId;
 
   useEffect(() => {
+    // Set Back Button Event
+    window.addEventListener('popstate', goToBack);
+
+    // Connect Camera & Mic
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
@@ -22,7 +26,6 @@ const Room = (props) => {
 
         socket.emit('BE-join-room', { roomId, userName: currentUser });
         socket.on('FE-user-join', (users) => {
-
           // all users
           const peers = [];
           users.forEach(({ userId, userName }) => {
@@ -59,7 +62,24 @@ const Room = (props) => {
           const peer = peersRef.current.find((p) => p.peerID === answerId);
           peer.peer.signal(signal);
         });
+
+        socket.on('FE-user-leave', ({ userId, userName }) => {
+          const peer = peersRef.current.find((p) => p.peerID === userId);
+          peer.peer.destroy();
+          setPeers((users) => {
+            users = users.filter((user) =>{
+              if(user.peerID !== peer.peer.peerID) {
+                return user;
+              }
+            });
+            return [...users];
+          });
+        });
       });
+
+    return () => {
+      socket.disconnect();
+    };
     // eslint-disable-next-line
   }, []);
 
@@ -78,6 +98,10 @@ const Room = (props) => {
       });
     });
 
+    peer.on('disconnect', () => {
+      peer.destroy();
+    });
+
     return peer;
   }
 
@@ -92,13 +116,26 @@ const Room = (props) => {
       socket.emit('BE-accept-call', { signal, to: callerId });
     });
 
+    peer.on('disconnect', () => {
+      peer.destroy();
+    });
+
     peer.signal(incomingSignal);
 
     return peer;
   }
 
+  // Open Chat
   const clickChat = () => {
     setDisplayChat(!displayChat);
+  };
+
+  // BackButton
+  const goToBack = (e) => {
+    e.preventDefault();
+    socket.emit('BE-leave-room', { roomId, leaver: currentUser });
+    sessionStorage.removeItem('user');
+    window.location.href = '/';
   };
 
   return (
@@ -121,7 +158,7 @@ const Room = (props) => {
               return <VideoCard key={index} peer={peer} number={arr.length} />;
             })}
         </VideoContainer>
-        <BottomBar clickChat={clickChat} />
+        <BottomBar clickChat={clickChat} goToBack={goToBack} />
       </VideoAndBarContainer>
       <Chat display={displayChat} roomId={roomId} />
     </RoomContainer>

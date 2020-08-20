@@ -11,6 +11,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
+
+  app.get('/*', function (req, res) {
+    res.sendFile(path.join(__dirname, '../client/build/index.html'));
+  });
 }
 
 // Route
@@ -22,13 +26,12 @@ app.get('/ping', (req, res) => {
     .status(200);
 });
 
-app.get('/*', function (req, res) {
-  res.sendFile(path.join(__dirname, '../client/build/index.html'));
-});
-
 // Socket
 io.on('connection', (socket) => {
+  console.log(`New User connected: ${socket.id}`);
+
   socket.on('disconnect', () => {
+    socket.disconnect();
     console.log('User disconnected!');
   });
 
@@ -58,22 +61,8 @@ io.on('connection', (socket) => {
       try {
         const users = [];
         clients.forEach((client) => {
-          // if (
-          //   client !== socket.id &&
-          //   socketList[client] &&
-          //   socketList[client] !== userName
-          // ) {
-            // Add User List
-            users.push({ userId: client, userName: socketList[client] });
-        //   } else if (client !== socket.id && socketList[client] == userName) {
-        //     // Found Same User Name..
-        //     socket.leave(roomId);
-        //     delete socketList[socket.id];
-
-        //     throw {
-        //       msg: 'User Name not available',
-        //     };
-        //   }
+          // Add User List
+          users.push({ userId: client, userName: socketList[client] });
         });
         socket.broadcast.to(roomId).emit('FE-user-join', users);
         // io.sockets.in(roomId).emit('FE-user-join', users);
@@ -99,6 +88,13 @@ io.on('connection', (socket) => {
 
   socket.on('BE-send-message', ({ roomId, msg, sender }) => {
     io.sockets.in(roomId).emit('FE-receive-message', { msg, sender });
+  });
+
+  socket.on('BE-leave-room', ({ roomId, leaver }) => {
+    delete socketList[socket.id];
+    socket.broadcast.to(roomId).emit('FE-user-leave', { userId: socket.id, userName: [socket.id]});
+    io.sockets.sockets[socket.id].leave(roomId);
+    
   });
 });
 
