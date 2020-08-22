@@ -1,21 +1,46 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const BottomBar = ({ clickChat, goToBack }) => {
+const BottomBar = ({
+  clickChat,
+  goToBack,
+  toggleCameraAudio,
+  userVideoAudio,
+}) => {
   return (
     <Bar>
+      <Left>
+        <CameraButton onClick={toggleCameraAudio} data-switch="video">
+          <div>
+            {userVideoAudio.video ? (
+              <FaIcon className="fas fa-video"></FaIcon>
+            ) : (
+              <FaIcon className="fas fa-video-slash"></FaIcon>
+            )}
+          </div>
+          Camera
+        </CameraButton>
+        <CameraButton onClick={toggleCameraAudio} data-switch="audio">
+          <div>
+            {userVideoAudio.audio ? (
+              <FaIcon className="fas fa-microphone"></FaIcon>
+            ) : (
+              <FaIcon className="fas fa-microphone-slash"></FaIcon>
+            )}
+          </div>
+          Audio
+        </CameraButton>
+      </Left>
       <Center>
         <ChatButton onClick={clickChat}>
           <div>
-            <CommentIcon className="fa fa-comments"></CommentIcon>
+            <FaIcon className="fas fa-comments"></FaIcon>
           </div>
           Chat
         </ChatButton>
       </Center>
       <Right>
-        <StopButton onClick={goToBack}>
-          Stop
-        </StopButton>
+        <StopButton onClick={goToBack}>Stop</StopButton>
       </Right>
     </Bar>
   );
@@ -33,6 +58,12 @@ const Bar = styled.div`
   font-weight: 500;
   background-color: #4ea1d3;
 `;
+const Left = styled.div`
+  display: flex;
+  align-items: center;
+
+  margin-left: 15px;
+`;
 
 const Center = styled.div`
   flex: 1;
@@ -46,15 +77,20 @@ const ChatButton = styled.div`
   width: 75px;
   border: none;
   font-size: 15px;
+  padding: 5px;
 
   :hover {
     background-color: #77b7dd;
     cursor: pointer;
     border-radius: 15px;
   }
+
+  * {
+    pointer-events: none;
+  }
 `;
 
-const CommentIcon = styled.i`
+const FaIcon = styled.i`
   width: 30px;
   font-size: calc(16px + 1vmin);
 `;
@@ -72,6 +108,31 @@ const StopButton = styled.div`
   :hover {
     background-color: #f25483;
     cursor: pointer;
+  }
+`;
+
+const CameraButton = styled.div`
+  width: 75px;
+  border: none;
+  font-size: 15px;
+  padding: 5px;
+
+  :hover {
+    background-color: #77b7dd;
+    cursor: pointer;
+    border-radius: 15px;
+  }
+
+  * {
+    pointer-events: none;
+  }
+
+  .fa-microphone-slash {
+    color: #ee2560;
+  }
+
+  .fa-video-slash {
+    color: #ee2560;
   }
 `;
 

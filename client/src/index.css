@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+@import url('https://use.fontawesome.com/releases/v5.14.0/css/all.css');
 
 html,
 body {
@@ -30,6 +30,10 @@ p {
   width: 0% !important;
 }
 
+
+.width-peer0 {
+  width: 45% !important;
+}
 
 .width-peer1 {
   width: 45% !important;
