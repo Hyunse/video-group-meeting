@@ -53,8 +53,8 @@ This project is **deployed** at: https://video-group-meeting.herokuapp.com/
 ## Todo 🔨🔨🔨
 
 - [x] Delete peer after leaving a room
-- [ ] Display user's name
-- [ ] Mute audio/video
+- [x] Display user's name
+- [x] Mute audio/video
 - [ ] Screen sharing
 
 ## License
