@@ -22,6 +22,17 @@ p {
   border: 0;
 }
 
+video::-webkit-media-controls {
+  display: none !important;
+}
+
+@media screen and (max-height: 630px) {
+  html,
+  body {
+    font-size: 80%;
+  }
+}
+
 .hidden {
   display: none !important;
 }
@@ -29,7 +40,6 @@ p {
 .width0 {
   width: 0% !important;
 }
-
 
 .width-peer0 {
   width: 45% !important;

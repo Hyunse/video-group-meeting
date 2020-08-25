@@ -20,6 +20,8 @@ This project is **deployed** at: https://video-group-meeting.herokuapp.com/
 - Join a room
 - Video Streaming
 - Text chat
+- Mute Video/Audio
+- Screen Sharing
 
 ## Installation
 ### Clone
@@ -52,10 +54,8 @@ This project is **deployed** at: https://video-group-meeting.herokuapp.com/
 
 ## Todo 🔨🔨🔨
 
-- [x] Delete peer after leaving a room
-- [x] Display user's name
-- [x] Mute audio/video
-- [x] Screen sharing
+- [ ] Bug: when clicking stop, every user disconnected.
+- [ ] Bug: when sharing screen, users can't mute
 
 ## License
 [MIT License](./LICENSE)

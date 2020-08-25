@@ -7,6 +7,7 @@ const BottomBar = ({
   toggleCameraAudio,
   userVideoAudio,
   clickScreenSharing,
+  screenShare,
 }) => {
   return (
     <Bar>
@@ -41,7 +42,9 @@ const BottomBar = ({
         </ChatButton>
         <ScreenButton onClick={clickScreenSharing}>
           <div>
-            <FaIcon className="fas fa-desktop"></FaIcon>
+            <FaIcon
+              className={`fas fa-desktop ${screenShare ? 'sharing' : ''}`}
+            ></FaIcon>
           </div>
           Share Screen
         </ScreenButton>
@@ -108,6 +111,10 @@ const ScreenButton = styled.div`
     cursor: pointer;
     border-radius: 15px;
   }
+
+  .sharing {
+    color: #ee2560;
+  }
 `;
 
 const FaIcon = styled.i`
@@ -134,7 +141,7 @@ const StopButton = styled.div`
 const CameraButton = styled.div`
   width: 75px;
   border: none;
-  font-size: 15px;
+  font-size: 0.9375rem;
   padding: 5px;
 
   :hover {

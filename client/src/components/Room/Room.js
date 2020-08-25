@@ -13,8 +13,10 @@ const Room = (props) => {
     localUser: { video: true, audio: true },
   });
   const [displayChat, setDisplayChat] = useState(false);
+  const [screenShare, setScreenShare] = useState(false);
   const peersRef = useRef([]);
   const userVideoRef = useRef();
+  const screenTrackRef = useRef();
   const userStream = useRef();
   const roomId = props.match.params.roomId;
 
@@ -171,8 +173,12 @@ const Room = (props) => {
 
   function createUserVideo(peer, index, arr) {
     return (
-      <VideoBox className={`width-peer${peers.length > 8 ? '' : peers.length}`}>
+      <VideoBox
+        className={`width-peer${peers.length > 8 ? '' : peers.length}`}
+        onClick={expandScreen}
+      >
         {writeUserName(peer.userName)}
+        <FaIcon className="fas fa-expand" />
         <VideoCard key={index} peer={peer} number={arr.length} />
       </VideoBox>
     );
@@ -228,25 +234,63 @@ const Room = (props) => {
   const clickScreenSharing = () => {
     const oldStream = userVideoRef.current.srcObject;
 
-    navigator.mediaDevices.getDisplayMedia({ cursor: true }).then((stream) => {
-      const screenTrack = stream.getTracks()[0];
-      
-      peersRef.current.forEach(({ peer }) => {
-        // replaceTrack (oldTrack, newTrack, oldStream);
-        peer.replaceTrack(peer.streams[0].getTracks().find((track) => track.kind  === 'video'), screenTrack, oldStream);
-      });
+    if (!screenShare) {
+      navigator.mediaDevices
+        .getDisplayMedia({ cursor: true })
+        .then((stream) => {
+          const screenTrack = stream.getTracks()[0];
 
-      // Listen click end
-      screenTrack.onended = () => {
-        peersRef.current.forEach(({ peer }) => {
-          // replaceTrack (oldTrack, newTrack, oldStream);
-          peer.replaceTrack(screenTrack, peer.streams[0].getTracks().find((track) => track.kind  === 'video'), oldStream);
+          peersRef.current.forEach(({ peer }) => {
+            // replaceTrack (oldTrack, newTrack, oldStream);
+            peer.replaceTrack(
+              peer.streams[0]
+                .getTracks()
+                .find((track) => track.kind === 'video'),
+              screenTrack,
+              oldStream
+            );
+          });
+
+          // Listen click end
+          screenTrack.onended = () => {
+            peersRef.current.forEach(({ peer }) => {
+              // replaceTrack (oldTrack, newTrack, oldStream);
+              peer.replaceTrack(
+                screenTrack,
+                peer.streams[0]
+                  .getTracks()
+                  .find((track) => track.kind === 'video'),
+                oldStream
+              );
+            });
+            userVideoRef.current.srcObject = oldStream;
+            setScreenShare(false);
+          };
+
+          userVideoRef.current.srcObject = stream;
+          screenTrackRef.current = screenTrack;
+          setScreenShare(true);
         });
+    } else {
+      screenTrackRef.current.onended();
+    }
+  };
 
-        userVideoRef.current.srcObject = oldStream;
-      }
-      userVideoRef.current.srcObject = stream;
-    });
+  const expandScreen = (e) => {
+    const elem = e.target;
+
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+      /* Firefox */
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) {
+      /* Chrome, Safari & Opera */
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      /* IE/Edge */
+      elem.msRequestFullscreen();
+    }
   };
 
   return (
@@ -260,7 +304,14 @@ const Room = (props) => {
             {userVideoAudio['localUser'].video ? null : (
               <UserName>{currentUser}</UserName>
             )}
-            <MyVideo ref={userVideoRef} muted autoPlay playInline></MyVideo>
+            <FaIcon className="fas fa-expand" />
+            <MyVideo
+              onClick={expandScreen}
+              ref={userVideoRef}
+              muted
+              autoPlay
+              playInline
+            ></MyVideo>
           </VideoBox>
           {/* Joined User Vidoe */}
           {peers &&
@@ -272,6 +323,7 @@ const Room = (props) => {
           goToBack={goToBack}
           toggleCameraAudio={toggleCameraAudio}
           userVideoAudio={userVideoAudio['localUser']}
+          screenShare={screenShare}
         />
       </VideoAndBarContainer>
       <Chat display={displayChat} roomId={roomId} />
@@ -318,12 +370,25 @@ const VideoBox = styled.div`
     width: 100%;
     height: 100%;
   }
+
+  :hover {
+    > i {
+      display: block;
+    }
+  }
 `;
 
 const UserName = styled.div`
   position: absolute;
   font-size: calc(20px + 5vmin);
   z-index: 1;
+`;
+
+const FaIcon = styled.i`
+  display: none;
+  position: absolute;
+  right: 15px;
+  top: 15px;
 `;
 
 export default Room;
