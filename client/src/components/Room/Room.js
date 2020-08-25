@@ -15,6 +15,7 @@ const Room = (props) => {
   const [displayChat, setDisplayChat] = useState(false);
   const peersRef = useRef([]);
   const userVideoRef = useRef();
+  const userStream = useRef();
   const roomId = props.match.params.roomId;
 
   useEffect(() => {
@@ -26,6 +27,7 @@ const Room = (props) => {
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
         userVideoRef.current.srcObject = stream;
+        userStream.current = stream;
 
         socket.emit('BE-join-room', { roomId, userName: currentUser });
         socket.on('FE-user-join', (users) => {
@@ -54,6 +56,7 @@ const Room = (props) => {
               });
             }
           });
+
           setPeers(peers);
         });
 
@@ -135,10 +138,6 @@ const Room = (props) => {
         signal,
       });
     });
-    peer.on('stream', (stream) => {});
-
-    peer.on('track', (track, stream) => {});
-
     peer.on('disconnect', () => {
       peer.destroy();
     });
@@ -157,10 +156,6 @@ const Room = (props) => {
       socket.emit('BE-accept-call', { signal, to: callerId });
     });
 
-    peer.on('stream', (stream) => {});
-
-    peer.on('track', (track, stream) => {});
-
     peer.on('disconnect', () => {
       peer.destroy();
     });
@@ -178,11 +173,7 @@ const Room = (props) => {
     return (
       <VideoBox className={`width-peer${peers.length > 8 ? '' : peers.length}`}>
         {writeUserName(peer.userName)}
-        <VideoCard
-          key={index}
-          peer={peer}
-          number={arr.length}
-        />
+        <VideoCard key={index} peer={peer} number={arr.length} />
       </VideoBox>
     );
   }
@@ -234,6 +225,30 @@ const Room = (props) => {
     socket.emit('BE-toggle-camera-audio', { roomId, switchTarget: target });
   };
 
+  const clickScreenSharing = () => {
+    const oldStream = userVideoRef.current.srcObject;
+
+    navigator.mediaDevices.getDisplayMedia({ cursor: true }).then((stream) => {
+      const screenTrack = stream.getTracks()[0];
+      
+      peersRef.current.forEach(({ peer }) => {
+        // replaceTrack (oldTrack, newTrack, oldStream);
+        peer.replaceTrack(peer.streams[0].getTracks().find((track) => track.kind  === 'video'), screenTrack, oldStream);
+      });
+
+      // Listen click end
+      screenTrack.onended = () => {
+        peersRef.current.forEach(({ peer }) => {
+          // replaceTrack (oldTrack, newTrack, oldStream);
+          peer.replaceTrack(screenTrack, peer.streams[0].getTracks().find((track) => track.kind  === 'video'), oldStream);
+        });
+
+        userVideoRef.current.srcObject = oldStream;
+      }
+      userVideoRef.current.srcObject = stream;
+    });
+  };
+
   return (
     <RoomContainer>
       <VideoAndBarContainer>
@@ -252,6 +267,7 @@ const Room = (props) => {
             peers.map((peer, index, arr) => createUserVideo(peer, index, arr))}
         </VideoContainer>
         <BottomBar
+          clickScreenSharing={clickScreenSharing}
           clickChat={clickChat}
           goToBack={goToBack}
           toggleCameraAudio={toggleCameraAudio}
