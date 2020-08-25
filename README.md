@@ -55,7 +55,7 @@ This project is **deployed** at: https://video-group-meeting.herokuapp.com/
 - [x] Delete peer after leaving a room
 - [x] Display user's name
 - [x] Mute audio/video
-- [ ] Screen sharing
+- [x] Screen sharing
 
 ## License
 [MIT License](./LICENSE)
