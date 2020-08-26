@@ -10,6 +10,8 @@ This project is **deployed** at: https://video-group-meeting.herokuapp.com/
 - Node + Express
 - WebRTC
 - Socket.io
+- [Syled-components](https://styled-components.com/)
+- [Simple-peer](https://github.com/feross/simple-peer)
 
 **Contributors:** [Hyunse Kim](https://github.com/Hyunse)
 
