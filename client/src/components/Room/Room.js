@@ -42,6 +42,7 @@ const Room = (props) => {
               const peer = createPeer(userId, socket.id, stream);
 
               peer.userName = userName;
+              peer.peerID = userId;
 
               peersRef.current.push({
                 peerID: userId,
@@ -176,6 +177,7 @@ const Room = (props) => {
       <VideoBox
         className={`width-peer${peers.length > 8 ? '' : peers.length}`}
         onClick={expandScreen}
+        key={index}
       >
         {writeUserName(peer.userName)}
         <FaIcon className="fas fa-expand" />
@@ -212,6 +214,7 @@ const Room = (props) => {
     setUserVideoAudio((preList) => {
       let videoSwitch = preList['localUser'].video;
       let audioSwitch = preList['localUser'].audio;
+
       if (target === 'video') {
         const userVideoTrack = userVideoRef.current.srcObject.getVideoTracks()[0];
         videoSwitch = !videoSwitch;
@@ -219,7 +222,12 @@ const Room = (props) => {
       } else {
         const userAudioTrack = userVideoRef.current.srcObject.getAudioTracks()[0];
         audioSwitch = !audioSwitch;
-        userAudioTrack.enabled = audioSwitch;
+
+        if (userAudioTrack) {
+          userAudioTrack.enabled = audioSwitch;
+        } else {
+          userStream.current.getAudioTracks()[0].enabled = audioSwitch;
+        }
       }
 
       return {
@@ -232,8 +240,6 @@ const Room = (props) => {
   };
 
   const clickScreenSharing = () => {
-    const oldStream = userVideoRef.current.srcObject;
-
     if (!screenShare) {
       navigator.mediaDevices
         .getDisplayMedia({ cursor: true })
@@ -247,23 +253,22 @@ const Room = (props) => {
                 .getTracks()
                 .find((track) => track.kind === 'video'),
               screenTrack,
-              oldStream
+              userStream.current
             );
           });
 
           // Listen click end
           screenTrack.onended = () => {
             peersRef.current.forEach(({ peer }) => {
-              // replaceTrack (oldTrack, newTrack, oldStream);
               peer.replaceTrack(
                 screenTrack,
                 peer.streams[0]
                   .getTracks()
                   .find((track) => track.kind === 'video'),
-                oldStream
+                  userStream.current
               );
             });
-            userVideoRef.current.srcObject = oldStream;
+            userVideoRef.current.srcObject = userStream.current;
             setScreenShare(false);
           };
 

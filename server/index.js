@@ -100,14 +100,14 @@ io.on('connection', (socket) => {
   });
 
   socket.on('BE-toggle-camera-audio', ({ roomId, switchTarget }) => {
-    if(switchTarget === 'video') {
+    if (switchTarget === 'video') {
       socketList[socket.id].video = !socketList[socket.id].video;
     } else {
       socketList[socket.id].audio = !socketList[socket.id].audio;
     }
     socket.broadcast
-    .to(roomId)
-    .emit('FE-toggle-camera', { userId: socket.id, switchTarget });
+      .to(roomId)
+      .emit('FE-toggle-camera', { userId: socket.id, switchTarget });
   });
 });
 
