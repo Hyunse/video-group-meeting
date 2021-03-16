@@ -56,8 +56,7 @@ This project is **deployed** at: https://video-group-meeting.herokuapp.com/
 
 ## Todo 🔨🔨🔨
 
-- [x] Bug: when clicking stop, every user disconnected.
-- [x] Bug: when sharing screen, users can't mute
+- [ ] Switch Camera options
 
 ## License
 [MIT License](./LICENSE)

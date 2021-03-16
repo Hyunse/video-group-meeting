@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 
 const BottomBar = ({
@@ -8,26 +8,48 @@ const BottomBar = ({
   userVideoAudio,
   clickScreenSharing,
   screenShare,
+  videoDevices,
 }) => {
+  const [showVideoDevices, setShowVideoDevices] = useState(false);
+  const handleToggle = useCallback(
+    (e) => {
+      setShowVideoDevices((state) => !state);
+    },
+    [setShowVideoDevices]
+  );
+
   return (
     <Bar>
       <Left>
-        <CameraButton onClick={toggleCameraAudio} data-switch="video">
+        <CameraButton onClick={toggleCameraAudio} data-switch='video'>
           <div>
             {userVideoAudio.video ? (
-              <FaIcon className="fas fa-video"></FaIcon>
+              <FaIcon className='fas fa-video'></FaIcon>
             ) : (
-              <FaIcon className="fas fa-video-slash"></FaIcon>
+              <FaIcon className='fas fa-video-slash'></FaIcon>
             )}
           </div>
           Camera
         </CameraButton>
-        <CameraButton onClick={toggleCameraAudio} data-switch="audio">
+        {showVideoDevices && (
+          <SwitchList>
+            {videoDevices.length > 0 &&
+              videoDevices.map((device) => {
+                console.log(device);
+                return <div>{device.label}</div>;
+              })}
+            <div>Switch Camera</div>
+          </SwitchList>
+        )}
+        <SwitchMenu onClick={handleToggle}>
+          <i className='fas fa-angle-up'></i>
+        </SwitchMenu>
+        <CameraButton onClick={toggleCameraAudio} data-switch='audio'>
           <div>
             {userVideoAudio.audio ? (
-              <FaIcon className="fas fa-microphone"></FaIcon>
+              <FaIcon className='fas fa-microphone'></FaIcon>
             ) : (
-              <FaIcon className="fas fa-microphone-slash"></FaIcon>
+              <FaIcon className='fas fa-microphone-slash'></FaIcon>
             )}
           </div>
           Audio
@@ -36,7 +58,7 @@ const BottomBar = ({
       <Center>
         <ChatButton onClick={clickChat}>
           <div>
-            <FaIcon className="fas fa-comments"></FaIcon>
+            <FaIcon className='fas fa-comments'></FaIcon>
           </div>
           Chat
         </ChatButton>
@@ -139,6 +161,7 @@ const StopButton = styled.div`
 `;
 
 const CameraButton = styled.div`
+  position: relative;
   width: 75px;
   border: none;
   font-size: 0.9375rem;
@@ -160,6 +183,61 @@ const CameraButton = styled.div`
 
   .fa-video-slash {
     color: #ee2560;
+  }
+`;
+
+const SwitchMenu = styled.div`
+  display: flex;
+  position: absolute;
+  width: 20px;
+  top: 7px;
+  left: 80px;
+  z-index: 1;
+
+  :hover {
+    background-color: #476d84;
+    cursor: pointer;
+    border-radius: 15px;
+  }
+
+  * {
+    pointer-events: none;
+  }
+
+  > i {
+    width: 90%;
+    font-size: calc(10px + 1vmin);
+  }
+`;
+
+const SwitchList = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: -115px;
+  left: 80px;
+  background-color: #4ea1d3;
+  color: white;
+  padding-top: 5px;
+  padding-right: 10px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  text-align: left;
+
+  > div {
+    font-size: 0.85rem;
+    padding: 1px;
+    margin-bottom: 5px;
+
+    :not(:last-child):hover {
+      background-color: #77b7dd;
+      cursor: pointer;
+    }
+  }
+
+  > div:last-child {
+    border-top: 1px solid white;
+    cursor: context-menu !important;
   }
 `;
 

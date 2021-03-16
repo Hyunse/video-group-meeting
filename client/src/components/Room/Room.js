@@ -12,6 +12,7 @@ const Room = (props) => {
   const [userVideoAudio, setUserVideoAudio] = useState({
     localUser: { video: true, audio: true },
   });
+  const [videoDevices, setVideoDevices] = useState([]);
   const [displayChat, setDisplayChat] = useState(false);
   const [screenShare, setScreenShare] = useState(false);
   const peersRef = useRef([]);
@@ -21,6 +22,12 @@ const Room = (props) => {
   const roomId = props.match.params.roomId;
 
   useEffect(() => {
+    // Get Video Devices
+    navigator.mediaDevices.enumerateDevices().then((devices) => {
+      const filtered = devices.filter((device) => device.kind === 'videoinput');
+      setVideoDevices(filtered);
+    });
+
     // Set Back Button Event
     window.addEventListener('popstate', goToBack);
 
@@ -180,7 +187,7 @@ const Room = (props) => {
         key={index}
       >
         {writeUserName(peer.userName)}
-        <FaIcon className="fas fa-expand" />
+        <FaIcon className='fas fa-expand' />
         <VideoCard key={index} peer={peer} number={arr.length} />
       </VideoBox>
     );
@@ -265,7 +272,7 @@ const Room = (props) => {
                 peer.streams[0]
                   .getTracks()
                   .find((track) => track.kind === 'video'),
-                  userStream.current
+                userStream.current
               );
             });
             userVideoRef.current.srcObject = userStream.current;
@@ -309,7 +316,7 @@ const Room = (props) => {
             {userVideoAudio['localUser'].video ? null : (
               <UserName>{currentUser}</UserName>
             )}
-            <FaIcon className="fas fa-expand" />
+            <FaIcon className='fas fa-expand' />
             <MyVideo
               onClick={expandScreen}
               ref={userVideoRef}
@@ -329,6 +336,7 @@ const Room = (props) => {
           toggleCameraAudio={toggleCameraAudio}
           userVideoAudio={userVideoAudio['localUser']}
           screenShare={screenShare}
+          videoDevices={videoDevices}
         />
       </VideoAndBarContainer>
       <Chat display={displayChat} roomId={roomId} />
