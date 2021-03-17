@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
 const BottomBar = ({
@@ -9,8 +9,9 @@ const BottomBar = ({
   clickScreenSharing,
   screenShare,
   videoDevices,
+  showVideoDevices,
+  setShowVideoDevices
 }) => {
-  const [showVideoDevices, setShowVideoDevices] = useState(false);
   const handleToggle = useCallback(
     (e) => {
       setShowVideoDevices((state) => !state);

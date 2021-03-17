@@ -15,6 +15,7 @@ const Room = (props) => {
   const [videoDevices, setVideoDevices] = useState([]);
   const [displayChat, setDisplayChat] = useState(false);
   const [screenShare, setScreenShare] = useState(false);
+  const [showVideoDevices, setShowVideoDevices] = useState(false);
   const peersRef = useRef([]);
   const userVideoRef = useRef();
   const screenTrackRef = useRef();
@@ -305,8 +306,14 @@ const Room = (props) => {
     }
   };
 
+  const clickBackground = () => {
+    if(!showVideoDevices) return;
+
+    setShowVideoDevices(false);
+  }
+
   return (
-    <RoomContainer>
+    <RoomContainer onClick={clickBackground}>
       <VideoAndBarContainer>
         <VideoContainer>
           {/* Current User Video */}
@@ -337,6 +344,8 @@ const Room = (props) => {
           userVideoAudio={userVideoAudio['localUser']}
           screenShare={screenShare}
           videoDevices={videoDevices}
+          showVideoDevices={showVideoDevices}
+          setShowVideoDevices={setShowVideoDevices}
         />
       </VideoAndBarContainer>
       <Chat display={displayChat} roomId={roomId} />
