@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 const BottomBar = ({
   clickChat,
+  clickCameraDevice,
   goToBack,
   toggleCameraAudio,
   userVideoAudio,
@@ -36,8 +37,7 @@ const BottomBar = ({
           <SwitchList>
             {videoDevices.length > 0 &&
               videoDevices.map((device) => {
-                console.log(device);
-                return <div>{device.label}</div>;
+                return <div key={device.deviceId} onClick={clickCameraDevice} data-value={device.deviceId} >{device.label}</div>;
               })}
             <div>Switch Camera</div>
           </SwitchList>

@@ -307,10 +307,24 @@ const Room = (props) => {
   };
 
   const clickBackground = () => {
-    if(!showVideoDevices) return;
+    if (!showVideoDevices) return;
 
     setShowVideoDevices(false);
-  }
+  };
+
+  const clickCameraDevice = (event) => {
+    if (event && event.target && event.target.dataset &&  event.target.dataset.value) {
+      const deviceId = event.target.dataset.value;
+      const enabledAudio = userVideoRef.current.srcObject.getAudioTracks()[0].enabled;
+
+      navigator.mediaDevices
+      .getUserMedia({ video: { deviceId }, audio: enabledAudio })
+      .then((stream) => {
+        userVideoRef.current.srcObject = stream;
+        userStream.current = stream;
+      });
+    }
+  };
 
   return (
     <RoomContainer onClick={clickBackground}>
@@ -339,6 +353,7 @@ const Room = (props) => {
         <BottomBar
           clickScreenSharing={clickScreenSharing}
           clickChat={clickChat}
+          clickCameraDevice={clickCameraDevice}
           goToBack={goToBack}
           toggleCameraAudio={toggleCameraAudio}
           userVideoAudio={userVideoAudio['localUser']}
