@@ -215,7 +215,7 @@ const SwitchList = styled.div`
   display: flex;
   flex-direction: column;
   position: absolute;
-  top: -115px;
+  top: -65.95px;
   left: 80px;
   background-color: #4ea1d3;
   color: white;
