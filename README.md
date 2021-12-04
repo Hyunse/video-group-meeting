@@ -56,7 +56,7 @@ This project is **deployed** at: https://video-group-meeting.herokuapp.com/
 
 ## Todo 🔨🔨🔨
 
-- [ ] Switch Camera options
+- [x] Switch Camera options
 
 ## License
 [MIT License](./LICENSE)
