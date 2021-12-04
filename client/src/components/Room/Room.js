@@ -109,6 +109,7 @@ const Room = (props) => {
             users = users.filter((user) => user.peerID !== peerIdx.peer.peerID);
             return [...users];
           });
+          peersRef.current = peersRef.current.filter(({ peerID }) => peerID !== userId );
         });
       });
 
@@ -313,16 +314,30 @@ const Room = (props) => {
   };
 
   const clickCameraDevice = (event) => {
-    if (event && event.target && event.target.dataset &&  event.target.dataset.value) {
+    if (event && event.target && event.target.dataset && event.target.dataset.value) {
       const deviceId = event.target.dataset.value;
       const enabledAudio = userVideoRef.current.srcObject.getAudioTracks()[0].enabled;
 
       navigator.mediaDevices
-      .getUserMedia({ video: { deviceId }, audio: enabledAudio })
-      .then((stream) => {
-        userVideoRef.current.srcObject = stream;
-        userStream.current = stream;
-      });
+        .getUserMedia({ video: { deviceId }, audio: enabledAudio })
+        .then((stream) => {
+          const newStreamTrack = stream.getTracks().find((track) => track.kind === 'video');
+          const oldStreamTrack = userStream.current
+            .getTracks()
+            .find((track) => track.kind === 'video');
+
+          userStream.current.removeTrack(oldStreamTrack);
+          userStream.current.addTrack(newStreamTrack);
+
+          peersRef.current.forEach(({ peer }) => {
+            // replaceTrack (oldTrack, newTrack, oldStream);
+            peer.replaceTrack(
+              oldStreamTrack,
+              newStreamTrack,
+              userStream.current
+            );
+          });
+        });
     }
   };
 
